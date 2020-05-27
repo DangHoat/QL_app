@@ -1,0 +1,9 @@
+<resources>
+    <string name="no_network">Không có kết nối mạng</string>
+    <string name="login">Đăng Nhập</string>
+    <string name="create_new_acc">Tạo Mới Tài Khoản</string>
+    <string name="forgotPass">Quên Mật Khẩu</string>
+    <string name="lo_i_h_ng">Loại Hàng</string>
+    <string name="n_v_t_nh">Đơn vị tính</string>
+    <string name="version">1.0.0</string>
+</resources>

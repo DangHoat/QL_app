@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#fff"
+    app:cardUseCompatPadding="true"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:background="#fff"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/btnOption"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?android:attr/selectableItemBackground"
+            android:scaleType="center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:src="@drawable/ic_info"
+            app:srcCompat="@drawable/ic_info"/>
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/logo2"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvDiachi"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Địa Chỉ"
+            android:textColor="@android:color/black"
+            android:textSize="15dp"
+            android:textStyle="italic|bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/btnOption"
+            app:layout_constraintStart_toEndOf="@+id/imageView"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:visibility="gone"
+            android:id="@+id/tvLoaiHang"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Chủng loại hàng"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="12dp"
+            app:layout_constraintEnd_toEndOf="@+id/tvDiachi"
+            app:layout_constraintStart_toStartOf="@+id/tvDiachi"
+            app:layout_constraintTop_toBottomOf="@+id/tvDiachi"
+            />
+
+        <TextView
+            android:visibility="gone"
+            android:id="@+id/tvSoluong"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Số lượng : 10 "
+            android:textColor="@android:color/darker_gray"
+            android:textSize="12dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/tvDiachi"
+            app:layout_constraintTop_toBottomOf="@+id/tvTenHang" />
+
+        <TextView
+            android:visibility="gone"
+            android:id="@+id/tvDonViTinh"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Đơn vị Tính  : m2 "
+            android:textColor="@android:color/darker_gray"
+            android:textSize="12dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/tvDiachi"
+            app:layout_constraintStart_toEndOf="@+id/tvSoluong"
+            app:layout_constraintTop_toBottomOf="@+id/tvTenHang" />
+
+        <CheckBox
+            android:checked="true"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:background="@color/background"
+            android:visibility="gone"
+            android:id="@+id/checkBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:visibility="gone"
+            android:id="@+id/tvTenHang"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Hạng mục hàng "
+            android:textColor="@android:color/darker_gray"
+            android:textSize="12dp"
+            app:layout_constraintEnd_toStartOf="@+id/btnOption"
+            app:layout_constraintStart_toStartOf="@+id/tvLoaiHang"
+            app:layout_constraintTop_toBottomOf="@+id/tvLoaiHang" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/sogiadich" android:icon="@drawable/ic_note"
+        android:title="Sổ giao dịch" />
+    <item android:id="@+id/nhapxuat" android:icon="@drawable/ic_import_export"
+        android:title="Nhập xuẩt" />
+    <item android:id="@+id/thongbao" android:icon="@drawable/ic_notifications"
+        android:title="Thông báo" />
+    <item android:id="@+id/them" android:icon="@drawable/ic_more"
+        android:title="Mở rộng" />
+
+</menu>

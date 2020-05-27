@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="5dp"
+    android:background="@drawable/border_bottom_white">
+
+    <TextView
+        android:id="@+id/tenhang"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="?attr/editTextBackground"
+        android:drawableEnd="@drawable/ic_more_up"
+        android:gravity="center"
+        android:hint="Hạng mục"
+        android:textColor="@color/colorSecondaryText"
+        android:textSize="19sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.65" />
+
+    <TextView
+        android:id="@+id/dvTinh"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:background="?attr/editTextBackground"
+        android:drawableEnd="@drawable/ic_more_up"
+        android:gravity="center"
+        android:hint="Đơn vị tính"
+        android:textColor="@color/colorSecondaryText"
+        android:textSize="19sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/tenhang"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout3"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:weightSum="7"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dvTinh"
+        app:layout_constraintWidth_percent="0.4"
+        tools:ignore="MissingConstraints">
+
+        <Button
+            android:id="@+id/btnSub"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="-"
+            app:layout_constraintStart_toEndOf="@+id/dongia" />
+
+        <EditText
+            android:id="@+id/soluong"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
+            android:autofillHints=""
+            android:textColor="#000"
+            android:gravity="center"
+            android:inputType="numberDecimal"
+            android:text="0"
+            android:textSize="20sp" />
+
+        <Button
+            android:id="@+id/btnAdd"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:text="+" />
+
+    </LinearLayout>
+
+
+    <com.vn.quanly.ui.CurrencyEditText
+        android:id="@+id/dongia"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:gravity="center"
+        android:hint="Đơn giá hàng"
+        android:inputType="numberDecimal"
+        android:textColor="#000"
+        android:textSize="19sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/loaihang"
+        app:layout_constraintWidth_percent="0.5" />
+
+    <TextView
+        android:id="@+id/loaihang"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="?attr/editTextBackground"
+        android:drawableEnd="@drawable/ic_more_up"
+        android:gravity="center"
+        android:hint="Loại Hàng"
+        android:text=""
+        android:textColor="@color/colorSecondaryText"
+        android:textSize="19sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tenhang"
+        app:layout_constraintWidth_percent="0.6" />
+
+    <EditText
+        android:id="@+id/note"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:ems="10"
+        android:gravity="center"
+        android:hint="Note"
+        android:textColor="#000"
+        android:textSize="19sp"
+        android:inputType="textPersonName"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/diachi" />
+
+    <TextView
+        android:id="@+id/tvTime"
+        style="@style/Widget.AppCompat.EditText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="5dp"
+        android:gravity="center"
+        android:hint="__/__/____"
+        android:text=""
+        android:textColor="#000"
+        android:textSize="19sp"
+        app:layout_constraintEnd_toStartOf="@+id/dongia"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/loaihang"
+        app:layout_constraintWidth_percent="0.5" />
+
+    <EditText
+        android:id="@+id/diachi"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:ems="10"
+        android:gravity="center"
+        android:hint="Địa chỉ công trình"
+        android:inputType="textPersonName"
+        android:textColor="#000"
+        android:textSize="19sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/costBill" />
+
+    <TextView
+        android:id="@+id/costBill"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:background="?attr/editTextBackground"
+        android:enabled="true"
+        android:gravity="center"
+        android:hint="Tổng Giá"
+        android:textColor="#000"
+        android:textSize="19sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dongia"
+        app:layout_constraintWidth_percent="1" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

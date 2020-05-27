@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<!--    <color name="colorPrimary">#f58722</color>-->
+<!--    <color name="colorPrimaryDark">#F39642</color>-->
+<!--    <color name="colorAccent">#F39642</color>-->
+
+    <color name="colorPrimary">#45C622</color>
+    <color name="colorPrimaryDark">#45C622</color>
+    <color name="colorAccent">#45C622</color>
+    <color name="background">#DDDADA</color>
+    <color name="border">#4b5320</color>
+    <color name="background_bottom_memu">#FFF</color>
+    <color name="icon">#45C622</color>
+    <color name="accept">#45C622</color>
+    <color name="icon_unchoice">#887A7A</color>
+    <color name="colorProfileBorder">#878080</color>
+    <color name="colorPrimaryText">#212121</color>
+    <color name="colorSecondaryText">#757575</color>
+</resources>
