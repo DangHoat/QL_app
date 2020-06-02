@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -14,6 +15,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -53,9 +55,14 @@ import java.net.URL;
 import java.sql.Time;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
@@ -66,6 +73,8 @@ public class Service extends android.app.Service {
     private boolean isKill;
     SimpleDateFormat sdf;
     private  String token;
+    Locale localeVN = new Locale("vi", "VN");
+    NumberFormat currencyVN = NumberFormat.getCurrencyInstance(localeVN);
 
     @Override
     public void onCreate() {
@@ -81,7 +90,9 @@ public class Service extends android.app.Service {
 //        String date = df.format(Calendar.getInstance().getTime());
 //        int[] t = new SaveDataSHP(getApplicationContext()).getTime();
         token = intent.getStringExtra("token");
-        new getNoi(token).execute();
+        if(ToolsCheck.checkInternetConnection(getApplicationContext())){
+            new getNoi(token).execute();
+        }
         return START_NOT_STICKY;
     }
 
@@ -121,6 +132,9 @@ public class Service extends android.app.Service {
     class getNoi extends AsyncTask<String ,String,Void>{
         String token;
         String response="";
+        final String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Date timenow ;
         public  getNoi(String token){
             this.token = token;
         }
@@ -173,29 +187,50 @@ public class Service extends android.app.Service {
         }
 
         @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            try {
+                timenow = format.parse(today);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @RequiresApi(api = Build.VERSION_CODES.O)
+        @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
+            int index = 1;
             DecimalFormat formatter = new DecimalFormat("###,###,###");
+            final String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
             try {
                 JSONArray rs =  new JSONArray(response);
                 for (int i = 0;i<rs.length();i++){
                     JSONObject client = new JSONObject(rs.get(i).toString());
                     if(!client.getString("status").equals("resolved")){
-                        String mess = "";
-                        String time = "";
-                        if(client.getString("money_limit").equals("null")){
-                            mess = "Hạn nợ";
-                        }else {
-                            mess = "Số tiền nợ" + formatter.format(Long.parseLong(client.getString("money_limit"))) +" VND" ;
+                        ///Xử lý khi quá số tiền
+                        if(!client.getString("money_limit").equals("null")) {
+                            Double money_limit = Double.parseDouble(client.getString("money_limit"));
+                            Double total = Double.parseDouble(client.getString("total"));
+                            if (money_limit <= total) {
+                                setNotification(index, client.getString("code"), "Nợ " + currencyVN.format(Double.parseDouble(client.getString("total"))), "");
+                                index++;
+                            }
                         }
+                            // xử lý thông báo tiền khi quá ngày
+                        if(!client.getString("date_limit").equals("null")){
+                            try {
+                                Date date_limit = format.parse(client.getString("date_limit"));
+                                if(date_limit.before(timenow)|| date_limit.equals(timenow)){
+                                    setNotification(index,client.getString("code"),"Quá ngày nợ " +currencyVN.format(Double.parseDouble(client.getString("total"))),"");
+                                    index++;
+                                }
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
 
-                        if(client.getString("date_limit").equals("null")){
-                            time = " chưa xác định ngày";
-                        }else {
-                            time = " đến ngày" +client.getString("date_limit") ;
                         }
-                        setNotification(i,client.getString("name"),mess+time,"");
-
+                             //end
                     }
                 }
             } catch (JSONException e) {

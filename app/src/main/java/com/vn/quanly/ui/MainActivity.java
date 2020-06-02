@@ -12,21 +12,20 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.vn.quanly.R;
-import com.vn.quanly.SQLlite.Database;
 import com.vn.quanly.ViewModel.MainViewModel;
 import com.vn.quanly.adapter.Interface.connectMainActivity;
+import com.vn.quanly.adapter.Interface.resetClient;
 import com.vn.quanly.noitification.AlarmReceiver;
 import com.vn.quanly.ui.fragment.FragmentAddBill;
-import com.vn.quanly.ui.fragment.FragmentIntroduce;
+import com.vn.quanly.ui.fragment.FragmentClient;
 import com.vn.quanly.ui.fragment.FragmentMore;
 import com.vn.quanly.ui.fragment.FragmentNotification;
 import com.vn.quanly.ui.fragment.FragmentPaybook;
@@ -37,8 +36,6 @@ import com.vn.quanly.utils.SaveDataSHP;
 
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventListener;
-
-import org.apache.poi.ss.formula.functions.T;
 
 import java.util.Calendar;
 
@@ -58,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements connectMainActivi
     AlarmManager alarmManager;
     private static  MainActivity main;
     MainViewModel mainViewModel;
+    private resetClient reset;
 
     @Override
     protected void onStart() {
@@ -69,9 +67,6 @@ public class MainActivity extends AppCompatActivity implements connectMainActivi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
-
         mainViewModel = ViewModelProviders.of(this).get(MainViewModel.class);
         mainViewModel.getNumberPage().observe(this, new Observer<Integer>() {
             @Override
@@ -106,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements connectMainActivi
         actionBar.setTitle("Sổ Giao Dịch");
         fragmentMore = new FragmentMore();
         fragmentPaybook = new FragmentPaybook();
+        this.setResetClient(fragmentPaybook);
         isHome = true;
         isSearch = false;
         ControlBottomNav();
@@ -127,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements connectMainActivi
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
             getSupportActionBar().setHomeButtonEnabled(false);
         }
+
     }
     private void ControlBottomNav(){
         KeyboardVisibilityEvent.setEventListener(this, new KeyboardVisibilityEventListener() {
@@ -168,6 +165,10 @@ public class MainActivity extends AppCompatActivity implements connectMainActivi
                 return false;
             }
         });
+    }
+
+    public void setResetClient(com.vn.quanly.adapter.Interface.resetClient resetClient) {
+        this.reset = resetClient;
     }
 
     public void setFragment(Fragment f){
@@ -219,9 +220,9 @@ public class MainActivity extends AppCompatActivity implements connectMainActivi
 
     @Override
     public void Introduce() {
-        FragmentIntroduce fragmentIntroduce = new FragmentIntroduce();
+        FragmentClient fragmentIntroduce = new FragmentClient();
         setFragment(fragmentIntroduce);
-        actionBar.setTitle("Giới thiệu");
+        actionBar.setTitle("Danh sách khách hàng");
         bottomNavigationView.setVisibility(View.GONE);
         isSetFromMore = true;
     }
@@ -265,13 +266,23 @@ public class MainActivity extends AppCompatActivity implements connectMainActivi
             setAlarm();
     }
 
-//    @Override
-//    public void onConfigurationChanged(Configuration newConfig) {
-//        super.onConfigurationChanged(newConfig);
-//        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-//            Toast.makeText(this, "landscape", Toast.LENGTH_SHORT).show();
-//        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
-//            Toast.makeText(this, "portrait", Toast.LENGTH_SHORT).show();
-//        }
-//    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.e("MainActivity", "onDestroy");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.e("MainActivity", "onStop");
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        reset.resetClient();
+
+    }
 }

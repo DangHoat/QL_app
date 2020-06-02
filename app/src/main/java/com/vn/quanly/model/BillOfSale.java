@@ -15,7 +15,8 @@ public class BillOfSale {
     String date;
     String address;
     String id;
-    public BillOfSale(String date,String categories, String type,String unit, String unit_price, String quantity,String note,String address){
+    String total_amount;
+    public BillOfSale(String date,String address,String categories, String type,String unit, String unit_price, String quantity,String total_amount,String note){
         this.categories = categories;
         this.type = type;
         this.unit_price = unit_price;
@@ -24,13 +25,15 @@ public class BillOfSale {
         this.unit = unit;
         this.date = date;
         this.address = address;
+        this.total_amount = total_amount;
     }
-    public BillOfSale(String id,String date,String address,String categories, String type,String unit, String unit_price, String quantity,String note){
+    public BillOfSale(String id,String date,String address,String categories, String type,String unit, String unit_price,String quantity,String total_amount,String note){
         this.categories = categories;
         this.type = type;
         this.unit_price = unit_price;
         this.quantity = quantity;
         this.note = note;
+        this.total_amount = total_amount;
         this.unit = unit;
         this.date = date;
         this.address = address;
@@ -49,11 +52,11 @@ public class BillOfSale {
     private Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
 
     public String getCategories() {
-        return categories;
+        return categories.equals("null")?"":categories;
     }
 
     public String getAddress() {
-        return address;
+        return address.equals("null")?"":address;
     }
 
     public void setAddress(String address) {
@@ -112,8 +115,21 @@ public class BillOfSale {
         this.date = date;
     }
 
-    public String  isNumeric(String strNum) {
-        if (strNum == null || !pattern.matcher(strNum).matches()||strNum.trim().equals("")) {
+    public void setTotal_amount(String total_amount) {
+        this.total_amount = total_amount;
+    }
+
+    public String getTotal_amount() {
+        return isNumeric(total_amount);
+    }
+
+    public static String isNumeric(String strNum) {
+        if (strNum == null|| strNum.equals("null") ) {
+            return "0";
+        }
+        try {
+            double d = Double.parseDouble(strNum);
+        } catch (NumberFormatException nfe) {
             return "0";
         }
         return strNum;

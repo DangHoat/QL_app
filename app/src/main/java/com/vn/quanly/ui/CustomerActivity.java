@@ -53,9 +53,14 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -85,7 +90,7 @@ public class CustomerActivity extends AppCompatActivity {
         actionBar.setTitle(saveDataSHP.getString("name_client"));
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         recyclerView.setAdapter(infoCustomer);
-        JSONObject data = new JSONObject();
+        final JSONObject data = new JSONObject();
         try {
             data.put("code",saveDataSHP.getString("code_client"));
         } catch (JSONException e) {
@@ -112,10 +117,32 @@ public class CustomerActivity extends AppCompatActivity {
                                 itemBill.getString("unit"),
                                 itemBill.getString("unit_price"),
                                 itemBill.getString("quantity"),
+                                itemBill.getString("total_amount"),
                                 itemBill.getString("note")
                         );
                         billList.add(bill);
                     }
+
+                        Collections.sort(billList, new Comparator<BillOfSale>() {
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+                            @Override
+                            public int compare(BillOfSale o1, BillOfSale o2) {
+                                Date date1 = null;
+                                Date date2 = null;
+                                try {
+                                    date1 = sdf.parse(o1.getDate());
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                                try {
+                                    date2 = sdf.parse(o2.getDate());
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                                return date1.compareTo(date2);
+                            }
+                        });
                     recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
                     recyclerView.setAdapter(infoCustomer);
                     infoCustomer.notifyDataSetChanged();
@@ -166,7 +193,7 @@ public class CustomerActivity extends AppCompatActivity {
         final EditText edLoạiHang = alertLayout.findViewById(R.id.edLoạiHang);
         final EditText edNote = alertLayout.findViewById(R.id.edNote);
         final EditText edTenHang = alertLayout.findViewById(R.id.edTenHang);
-        final EditText edSoLuong = alertLayout.findViewById(R.id.edSoLuong);
+        final EditText edSoLuong = alertLayout.findViewById(R.id.edLimTime);
         final EditText edDonvi = alertLayout.findViewById(R.id.edDonvi);
         final CurrencyEditText edDongia = alertLayout.findViewById(R.id.edDongia);
 
@@ -198,30 +225,36 @@ public class CustomerActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 //run asyn task
                 final JSONObject data = new JSONObject();
-                final BillOfSale newbill = new BillOfSale(billOfSale.getId(),new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime()),
-                        edDiachiCT.getText().toString().trim(),
-                        edTenHang.getText().toString().trim(),
-                        edLoạiHang.getText().toString().trim(),
-                        edDonvi.getText().toString().trim(),
-                        edDongia.getText().toString().replace(",","").trim(),
-                        edSoLuong.getText().toString().trim(),
-                        edNote.getText().toString().trim());
+
+                final Double total_amount =Double.parseDouble(edSoLuong.getText().toString().trim())*Double.parseDouble(edDongia.getText().toString().replace(",","").trim());
                 try {
-                    final Double total_amount =Double.parseDouble(edSoLuong.getText().toString().trim())*Double.parseDouble(edDongia.getText().toString().replace(",","").trim());
+
                     data.put("id", billOfSale.getId());
                     data.put("categories", edTenHang.getText().toString().trim());
                     data.put("note", edNote.getText().toString().trim());
                     data.put("types", edLoạiHang.getText().toString().trim());
-                    data.put("unit_price",edDongia.getText().toString().replace(",","").trim());
+                    data.put("unit_price",edDongia.getText().toString().replace(",","").replace(".","").trim());
                     data.put("unit", edDonvi.getText().toString().trim());
                     data.put("total_amount",total_amount);
-                    data.put("date", new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime()));
+                    data.put("date", new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime()));
                     data.put("quantity",edSoLuong.getText().toString().trim());
                     data.put("construction_address",edDiachiCT.getText().toString().trim());
 //                    data.put("tratruoc",tratruoc);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+
+                final BillOfSale newbill = new BillOfSale(
+                        billOfSale.getId(),
+                        new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime()),
+                        edDiachiCT.getText().toString().trim(),
+                        edTenHang.getText().toString().trim(),
+                        edLoạiHang.getText().toString().trim(),
+                        edDonvi.getText().toString().trim(),
+                        edDongia.getText().toString().replace(",","").trim(),
+                        edSoLuong.getText().toString().trim(),
+                        Double.toString(total_amount),
+                        edNote.getText().toString().trim());
 
                 AsyntaskAPI update = new AsyntaskAPI(context,data,ConfigAPI.API_BILL,"PUT",saveDataSHP.getShpToken()) {
                     @Override
@@ -263,7 +296,7 @@ public class CustomerActivity extends AppCompatActivity {
         final EditText edSodienthoai = alertLayout.findViewById(R.id.edTenHang);
         final EditText edTratruoc = alertLayout.findViewById(R.id.edNote);
         final EditText edHanmuc = alertLayout.findViewById(R.id.edDonvi);
-        final TextView limTime =alertLayout.findViewById(R.id.edSoLuong);
+        final EditText limTime =alertLayout.findViewById(R.id.edLimTime);
 
         edTenkhachhang.setText(saveDataSHP.getString("name_client"));
         edDiachi.setText(saveDataSHP.getString("address_client"));
@@ -385,6 +418,7 @@ public class CustomerActivity extends AppCompatActivity {
             }
         });
         AlertDialog dialog = alert.create();
+        dialog.setCanceledOnTouchOutside(true);
         dialog.show();
     }
 
@@ -520,71 +554,6 @@ public class CustomerActivity extends AppCompatActivity {
                 onBackPressed();
                 return true;
             case R.id.payin:
-                 final CurrencyEditText input = (CurrencyEditText) new CurrencyEditText(this);
-                 input.setHint("Thanh toán trước");
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.MATCH_PARENT);
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle(saveDataSHP.getString("name_client"));
-                builder.setView(input);
-                builder.setNegativeButton("Bỏ Qua", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-
-                    }
-                });
-                builder.setPositiveButton("Thanh Toán", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, final int i) {
-                        String task = String.valueOf(input.getText());
-                        if(!task.equals("")){
-                            task = task.replace(",","");
-                        }else {
-                            return;
-                        }
-                        JSONObject data =  new JSONObject();
-                        try {
-                            data.put("money",Double.parseDouble(task));
-                            data.put("code",saveDataSHP.getString("code_client"));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        new AsyntaskAPI(context, data, ConfigAPI.API_CLIENT, "PUT",saveDataSHP.getShpToken()) {
-                            @Override
-                            public void setOnPreExcute() {
-
-                            }
-
-                            @Override
-                            public void setOnPostExcute(String JsonResult) {
-                                Log.e("Thanh Toan",JsonResult);
-                                try {
-                                    JSONObject rs  = new JSONObject(JsonResult);
-                                    if(rs.getString("message").equals("Successfully")){
-                                        Toast.makeText(context,"Đã thanh toán",Toast.LENGTH_SHORT).show();
-                                        infoCustomer.ChangeTotalMoney(rs.getString("total"));
-                                        return;
-                                    }
-                                    if(rs.getString("message").equals("pay_enough")){
-                                        Toast.makeText(context,"Khách hàng không có dư nợ",Toast.LENGTH_SHORT).show();
-                                        return;
-                                    }
-                                    if(rs.getString("message").equals("Error")){
-                                        Toast.makeText(context,"Bạn không được quyền thay đôi thông tin thanh toán!",Toast.LENGTH_SHORT).show();
-                                        return;
-                                    }
-
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }.execute();
-                    }
-                });
-                AlertDialog dialog = builder
-                        .create();
-                dialog.show();
                 break;
 
             default:break;
@@ -592,11 +561,82 @@ public class CustomerActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.pay_in,menu);
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
+    void payin(){
+        final CurrencyEditText input = (CurrencyEditText) new CurrencyEditText(this);
+        input.setHint("Thanh toán trước");
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(saveDataSHP.getString("name_client"));
+        builder.setView(input);
+        builder.setNegativeButton("Bỏ Qua", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        builder.setPositiveButton("Thanh Toán", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, final int i) {
+                String task = String.valueOf(input.getText());
+                if(!task.equals("")){
+                    task = task.replace(",","");
+                }else {
+                    return;
+                }
+                JSONObject data =  new JSONObject();
+                try {
+                    data.put("money",Double.parseDouble(task));
+                    data.put("code",saveDataSHP.getString("code_client"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                new AsyntaskAPI(context, data, ConfigAPI.API_CLIENT, "PUT",saveDataSHP.getShpToken()) {
+                    @Override
+                    public void setOnPreExcute() {
+
+                    }
+
+                    @Override
+                    public void setOnPostExcute(String JsonResult) {
+                        Log.e("Thanh Toan",JsonResult);
+                        try {
+                            JSONObject rs  = new JSONObject(JsonResult);
+                            if(rs.getString("message").equals("Successfully")){
+                                Toast.makeText(context,"Đã thanh toán",Toast.LENGTH_SHORT).show();
+                                infoCustomer.ChangeTotalMoney(rs.getString("total"));
+                                return;
+                            }
+                            if(rs.getString("message").equals("pay_enough")){
+                                Toast.makeText(context,"Khách hàng không có dư nợ",Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            if(rs.getString("message").equals("Error")){
+                                Toast.makeText(context,"Bạn không được quyền thay đôi thông tin thanh toán!",Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }.execute();
+            }
+        });
+        AlertDialog dialog = builder
+                .create();
+        dialog.show();
+    }
+
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        getMenuInflater().inflate(R.menu.pay_in,menu);
+//        return true;
+//    }
 
 }

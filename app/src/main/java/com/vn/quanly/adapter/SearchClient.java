@@ -10,18 +10,15 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.vn.quanly.R;
-import com.vn.quanly.adapter.Interface.clickItemSearch;
 import com.vn.quanly.model.Client;
-
-import org.w3c.dom.Text;
 
 import java.util.List;
 
-public class SearchView extends RecyclerView.Adapter<SearchView.ViewHolder> {
+public class SearchClient extends RecyclerView.Adapter<SearchClient.ViewHolder> {
     Context context;
     List<Client> list;
     com.vn.quanly.adapter.Interface.clickItemSearch clickItemSearch;
-    public SearchView(Context context,List<Client> list){
+    public SearchClient(Context context, List<Client> list){
         this.context = context;
         this.list = list;
     }
@@ -29,7 +26,7 @@ public class SearchView extends RecyclerView.Adapter<SearchView.ViewHolder> {
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.item_search,parent,false);
-        return new SearchView.ViewHolder(view);
+        return new SearchClient.ViewHolder(view);
     }
 
     @Override

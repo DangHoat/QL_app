@@ -10,6 +10,7 @@ public class ConfigAPI {
     public static final String API_RESGITER = LINK+"auth/resgiter";
     public static final String API_FORGOT =LINK+"auth/forgot-password";
     public static final String API_BILL_of_Client =LINK+"auth/bill/client";
+    public static final String API_CLIENT_BY_CODE =LINK+"auth/client/getClientByCode";
     public static final String API_GET_SOME_BILL =LINK+"auth/client/some";
     public static final String API_CLIENT=LINK+"auth/client";
     public static final String APT_GET_SOME_CLIENT=LINK+"auth/client/some";

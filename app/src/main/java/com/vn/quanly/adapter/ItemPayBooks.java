@@ -11,6 +11,7 @@ import android.widget.Filterable;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -30,6 +31,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +50,7 @@ public class ItemPayBooks extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private int lastVisibleItem, totalItemCount;
     Locale localeVN = new Locale("vi", "VN");
     NumberFormat currencyVN = NumberFormat.getCurrencyInstance(localeVN);
+
 
 
     public ItemPayBooks(Context context, RecyclerView recyclerView, List<PayBook> payBooks, final int itemAddAfterMoreLoad ){
@@ -69,6 +73,10 @@ public class ItemPayBooks extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     }
             }
         });
+
+        DecimalFormatSymbols decimalFormatSymbols = ((DecimalFormat) currencyVN).getDecimalFormatSymbols();
+        decimalFormatSymbols.setCurrencySymbol("");
+        ((DecimalFormat) currencyVN).setDecimalFormatSymbols(decimalFormatSymbols);
     }
 
     @NonNull
@@ -200,7 +208,7 @@ public class ItemPayBooks extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             e.printStackTrace();
         }
 
-        AsyntaskAPI getClient = new AsyntaskAPI(context,data,ConfigAPI.API_CLIENT+"/getClientByCode","POST",new SaveDataSHP(context).getShpToken()) {
+        AsyntaskAPI getClient = new AsyntaskAPI(context,data,ConfigAPI.API_CLIENT_BY_CODE,"POST",new SaveDataSHP(context).getShpToken()) {
             @Override
             public void setOnPreExcute() {
 
@@ -210,11 +218,16 @@ public class ItemPayBooks extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             public void setOnPostExcute(String JsonResult) {
                 try {
                     JSONObject rs = new JSONObject(JsonResult);
-                    JSONArray data = rs.getJSONArray("info");
-                    JSONObject client = data.getJSONObject(0);
-                    new SaveDataSHP(context).setClient(client);
-                    Intent intent = new Intent (context, CustomerActivity.class);
-                    context.startActivities(new Intent[]{intent});
+                    if(!rs.toString().equals("")){
+                        if(rs.getString("message").equals("Successfully")&&!rs.getString("info").equals("")){
+                            JSONObject info = new JSONObject(rs.getString("info"));
+                            new SaveDataSHP(context).setClient(info);
+                            Intent intent = new Intent (context, CustomerActivity.class);
+                            context.startActivities(new Intent[]{intent});
+                        }else {
+                            Toast.makeText(context,"Lỗi khách hàng!",Toast.LENGTH_SHORT).show();
+                        }
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

@@ -27,12 +27,14 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.vn.quanly.R;
 import com.vn.quanly.SQLlite.Database;
+import com.vn.quanly.adapter.Interface.resetClient;
 import com.vn.quanly.adapter.ItemPayBooks;
 import com.vn.quanly.api.AsyntaskAPI;
 import com.vn.quanly.model.Client;
@@ -46,17 +48,23 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
-public class FragmentPaybook extends Fragment {
+public class FragmentPaybook extends Fragment implements resetClient {
     private List<PayBook> payBooks = new ArrayList<>();
     private RecyclerView recyclerView;
     private ItemPayBooks itemPayBooks;
+    private TextView total;
+    CardView cardView;
     SearchView searchView;
     Database database;
+    Double totalCost = 0.0;
     DatePickerDialog.OnDateSetListener dateSetListener;
+    NumberFormat currencyVN = NumberFormat.getCurrencyInstance(new Locale("vi","VN"));
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -68,27 +76,33 @@ public class FragmentPaybook extends Fragment {
     }
     private void Init(View view){
         recyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
+        total =  view.findViewById(R.id.total);
+        cardView =  view.findViewById(R.id.cardView);
+        cardView.setVisibility(View.GONE);
     }
     private void ControlListPayBooks(){
-            AsyntaskAPI getPay = new AsyntaskAPI(getContext(), ConfigAPI.API_CLIENT,new SaveDataSHP(getContext()).getShpToken(),false) {
+            AsyntaskAPI getPay = new AsyntaskAPI(getContext(), ConfigAPI.API_CLIENT,new SaveDataSHP(getContext()).getShpToken(),true) {
             @Override
             public void setOnPreExcute() {
-
+                totalCost= 0.0;
             }
             @RequiresApi(api = Build.VERSION_CODES.O)
             @SuppressLint("StaticFieldLeak")
             @Override
             public void setOnPostExcute(String JsonResult) {
                 database.clearAll();
+
                 try {
                     JSONArray rs =  new JSONArray(JsonResult);
                     for (int i = 0;i<rs.length();i++){
                         JSONObject client = new JSONObject(rs.get(i).toString());
+                        totalCost +=  Double.parseDouble(client.getString("total"));
                         Client itemClient =  new Client(
                                 client.getString("code"),
                                 client.getString("name"),
                                 client.getString("address"),
-                                client.getString("telephone"));
+                                client.getString("telephone"),
+                                client.getString("total"));
                         database.AddNote(getContext(),itemClient);
 
                         PayBook payBook =  new PayBook(
@@ -103,9 +117,12 @@ public class FragmentPaybook extends Fragment {
                                 client.getString("status").equals("pending"));
                         payBooks.add(payBook);
                     }
+
                     recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
                     itemPayBooks = new ItemPayBooks(getContext(),recyclerView,payBooks,5);
                     recyclerView.setAdapter(itemPayBooks);
+                    cardView.setVisibility(View.VISIBLE);
+                    total.setText(currencyVN.format(totalCost));
 //                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -172,7 +189,7 @@ public class FragmentPaybook extends Fragment {
         final EditText edSodienthoai = alertLayout.findViewById(R.id.edTenHang);
         final EditText edTratruoc = alertLayout.findViewById(R.id.edNote);
         final EditText edHanmuc = alertLayout.findViewById(R.id.edDonvi);
-        final TextView limTime =alertLayout.findViewById(R.id.edSoLuong);
+        final TextView limTime =alertLayout.findViewById(R.id.edLimTime);
         final EditText edCode = alertLayout.findViewById(R.id.edCode);
         final TextView tvCode =alertLayout.findViewById(R.id.tvCode);
         edCode.setVisibility(View.VISIBLE);
@@ -237,7 +254,6 @@ public class FragmentPaybook extends Fragment {
                     data.put("status","resolved");
                     data.put("telephone",sodienthoai);
                     data.put("money_limit",hanmuc);
-//
                     data.put("date_limit",limitTime);
                     data.put("note","");
                 } catch (JSONException e) {
@@ -253,16 +269,12 @@ public class FragmentPaybook extends Fragment {
                     @RequiresApi(api = Build.VERSION_CODES.O)
                     @Override
                     public void setOnPostExcute(String JsonResult) {
-                        Log.e("creatClient",JsonResult);
-                        Log.e("creatClient","------------------------------");
-                        Log.e("creatClient", VNCharacterUtils.replaceWhiteSpace("Cao Hồng Thắm"));
-                        Log.e("creatClient","------------------------------");
-
+                        //pay_enough
                         try {
                             JSONObject rs = new JSONObject(JsonResult);
-                            if (!rs.toString().equals("") && rs.getString("message").equals("Successfully")) {
+                            if (!rs.toString().equals("") && rs.getString("message").equals("Successfully")){
                                 Toast.makeText(getContext(), "Thêm khách hàng thành công", Toast.LENGTH_SHORT).show();
-                                Client client =  new Client(makhachhang,tenkhachhang,diachi,sodienthoai);
+                                Client client =  new Client(makhachhang,tenkhachhang,diachi,sodienthoai,"0");
                                 database.AddNote(getContext(),client);
                             }else {
                                 Toast.makeText(getContext(), "Hãy kiểm tra lại", Toast.LENGTH_SHORT).show();
@@ -283,5 +295,22 @@ public class FragmentPaybook extends Fragment {
         });
         AlertDialog dialog = alert.create();
         dialog.show();
+    }
+//Cập nhập lại tiền của khách đã thay đổi
+
+    @Override
+    public void resetClient() {
+        Log.e("resetClient","resetClient");
+        if(itemPayBooks!= null && !payBooks.isEmpty()){
+            SaveDataSHP saveDataSHP  = new SaveDataSHP(getContext());
+            String codelient = saveDataSHP.getString("code_client");
+            for (PayBook v:payBooks){
+                if(v.getCodeClient().equals(codelient)){
+                    v.setTotal(saveDataSHP.getString("total_client"));
+                    break;
+                }
+            }
+            itemPayBooks.notifyDataSetChanged();
+        }
     }
 }

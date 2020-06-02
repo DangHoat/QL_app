@@ -1,10 +1,16 @@
 package com.vn.quanly.adapter;
 
+import android.app.DatePickerDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
@@ -21,6 +27,7 @@ import com.vn.quanly.R;
 import com.vn.quanly.adapter.Interface.recycleViewAction;
 import com.vn.quanly.api.AsyntaskAPI;
 import com.vn.quanly.model.Noitification;
+import com.vn.quanly.ui.CustomerActivity;
 import com.vn.quanly.utils.ConfigAPI;
 import com.vn.quanly.utils.SaveDataSHP;
 import com.vn.quanly.utils.ToolsCheck;
@@ -30,6 +37,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.NumberFormat;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -89,7 +97,7 @@ public class ItemNoitifications extends RecyclerView.Adapter<RecyclerView.ViewHo
     public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, final int position) {
         if(holder instanceof ItemNoitifications.ItemNoitificationView){
             final Noitification noitification = noitificationList.get(position);
-            ((ItemNoitificationView) holder).tvTenHang.setText(noitification.getTitle()+"(mã:"+noitification.getCode()+")đang có nợ");
+            ((ItemNoitificationView) holder).tvTenHang.setText(noitification.getCode()+" - " +currencyVN.format(Double.parseDouble(noitification.getMoney())));
             if(!noitification.getCheck()){
                 ((ItemNoitificationView) holder).layout.setBackground(ContextCompat.getDrawable(context,R.drawable.border_bottom_gray));
             }else {
@@ -110,10 +118,9 @@ public class ItemNoitifications extends RecyclerView.Adapter<RecyclerView.ViewHo
                         @Override
                         public boolean onMenuItemClick(MenuItem item) {
                             switch (item.getItemId()){
-//                                case R.id.watch:
-//                                    ((ItemNoitificationView) holder).layout.setBackground(ContextCompat.getDrawable(context,R.drawable.border_bottom_white));
-//                                    noitification.setCheck(true);
-//                                    return false;
+                                case R.id.hanno:
+                                    changeTime(noitification);
+                                    return false;
                                 case R.id.delete:
                                     AsyntaskAPI deleteNoi = new AsyntaskAPI(context, ConfigAPI.API_DELETE_OWE+noitification.getCode(),new SaveDataSHP(context).getShpToken(),false) {
                                         @Override
@@ -212,4 +219,76 @@ public class ItemNoitifications extends RecyclerView.Adapter<RecyclerView.ViewHo
             layout =itemView.findViewById(R.id.layout);
         }
     }
+    void changeTime(final Noitification noitification){
+        DatePickerDialog.OnDateSetListener dateSetListener;
+
+        dateSetListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                month = month + 1;
+                String date = year+"-"+month+"-"+dayOfMonth;
+                JSONObject oldData = noitification.getData();
+                try {
+                    oldData.put("date_limit",date);
+                    if(ToolsCheck.checkInternetConnection(context)){
+                            callAPI(oldData);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        Calendar calendar = Calendar.getInstance();
+        int year;
+        int month;
+        int day;
+        if(!noitification.getTime().equals("null")){
+            String data_lim[] = noitification.getTime().split("\\-");
+             year = Integer.parseInt(data_lim[0]);
+             month = Integer.parseInt(data_lim[1]);
+             day = Integer.parseInt(data_lim[2]);
+        }else {
+             year = calendar.get(Calendar.YEAR);
+             month = calendar.get(Calendar.MONTH);
+             day = calendar.get(Calendar.DAY_OF_MONTH);
+        }
+
+
+        DatePickerDialog dialog = new DatePickerDialog(context,
+                android.R.style.Theme_Holo_Light_Dialog_MinWidth, dateSetListener, year, month, day );
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.show();
+
+    }
+
+    void callAPI(JSONObject data){
+        AsyntaskAPI changeClient = new AsyntaskAPI(context
+                ,data,ConfigAPI.API_CLIENT,"PATCH",new SaveDataSHP(context).getShpToken()) {
+            @Override
+            public void setOnPreExcute() {
+
+            }
+
+            @Override
+            public void setOnPostExcute(String JsonResult) {
+                Log.e("JsonResult",JsonResult);
+                try {
+                    JSONObject rs = new JSONObject(JsonResult);
+                    if (!rs.toString().equals("") && rs.getString("message").equals("Successfully")) {
+
+                        Toast.makeText(context, "Thay đổi thông tin thành công", Toast.LENGTH_SHORT).show();
+
+                    }else {
+                        Toast.makeText(context, "Hãy kiểm tra lại", Toast.LENGTH_SHORT).show();
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        };
+        changeClient.execute();
+    }
+
 }

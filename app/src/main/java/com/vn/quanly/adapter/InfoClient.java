@@ -34,6 +34,8 @@ import com.vn.quanly.utils.ToolsCheck;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,6 +68,9 @@ public class InfoClient extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 super.onScrolled(recyclerView, dx, dy);
             }
         });
+        DecimalFormatSymbols decimalFormatSymbols = ((DecimalFormat) currencyVN).getDecimalFormatSymbols();
+        decimalFormatSymbols.setCurrencySymbol("");
+        ((DecimalFormat) currencyVN).setDecimalFormatSymbols(decimalFormatSymbols);
     }
 
     @NonNull
@@ -109,11 +114,6 @@ public class InfoClient extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }else {
                 ((Title) holder).tvDebt_lim.setText(money_limit);
             }
-
-//            if(ToolsCheck.isNumeric(money_limit)&& ToolsCheck.isNumeric(total))
-//            {
-//
-//            }
 
             if(ToolsCheck.isNumeric(total))
             {
@@ -176,16 +176,24 @@ public class InfoClient extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         ((ItemBill) holder).btnOpion.setVisibility(!isExport?View.VISIBLE:View.GONE);
         ((ItemBill) holder).tvLoaiHang.setText( "Loại Hàng: "+bill.getType());
         ((ItemBill) holder).tvTenHang.setText("Tên Hàng: " +bill.getCategories());
-        ((ItemBill) holder).tvDiachi.setText( "Công trình: "+bill.getAddress());
-            ((ItemBill) holder).tvDiachi.setOnClickListener(new View.OnClickListener() {
+        ((ItemBill) holder).tvDiachi.setText( bill.getAddress());
+        ((ItemBill) holder).tvDiachi.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showBill(bill);
+            }
+        });
+            ((ItemBill) holder).tvTotal.setText( currencyVN.format(Double.parseDouble(bill.getTotal_amount())));
+            ((ItemBill) holder).tvTotal.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     showBill(bill);
                 }
             });
+
         ((ItemBill) holder).tvSoluong.setText("Số lượng : "+bill.getQuantity());
         ((ItemBill) holder).tvDonViTinh.setText("Đơn giá :"+ currencyVN.format(Long.parseLong(bill.getUnit_price()))+"/"+bill.getUnit());
-            ((ItemBill) holder).btnOpion.setEnabled(!deleting);
+        ((ItemBill) holder).btnOpion.setEnabled(!deleting);
         ((ItemBill) holder).btnOpion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -205,6 +213,9 @@ public class InfoClient extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         }
                     }
                 });
+                if(Double.parseDouble(bill.getTotal_amount())<0){
+                    popup.getMenu().findItem(R.id.update).setVisible(false);
+                }
                 popup.show();
             }
         });
@@ -226,6 +237,7 @@ public class InfoClient extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             }
         });
+            ((ItemBill) holder).tvTime.setText(bill.getDate());
 //            ((ItemBill) holder).checkBox.setChecked(checkAll);
         }
         if(holder instanceof LoadingView){
@@ -264,6 +276,8 @@ public class InfoClient extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         TextView tvSoluong;
         TextView tvDonViTinh;
         TextView tvDiachi;
+        TextView tvTotal;
+        TextView tvTime;
         ImageView btnOpion;
         CheckBox checkBox;
 
@@ -271,6 +285,8 @@ public class InfoClient extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             super(itemView);
             tvTenHang = itemView.findViewById(R.id.tvTenHang);
             tvLoaiHang = itemView.findViewById(R.id.tvLoaiHang);
+            tvTotal = itemView.findViewById(R.id.tvTotal);
+            tvTime = itemView.findViewById(R.id.tvTime);
             tvSoluong = itemView.findViewById(R.id.tvSoluong);
             tvDonViTinh = itemView.findViewById(R.id.tvDonViTinh);
             tvDiachi = itemView.findViewById(R.id.tvDiachi);
@@ -291,7 +307,6 @@ public class InfoClient extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public Title(@NonNull View itemView) {
             super(itemView);
             customer = itemView.findViewById(R.id.customer);
-
             tvAdress = itemView.findViewById(R.id.tvAdress);
             tvTelecom = itemView.findViewById(R.id.tvTelecom);
             tvDebt_lim = itemView.findViewById(R.id.tvDebt_lim);
@@ -344,7 +359,7 @@ public class InfoClient extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final EditText edDiachiCT = alertLayout.findViewById(R.id.edDiachiCT);
         final EditText edLoạiHang = alertLayout.findViewById(R.id.edLoạiHang);
         final EditText edTenHang = alertLayout.findViewById(R.id.edTenHang);
-        final EditText edSoLuong = alertLayout.findViewById(R.id.edSoLuong);
+        final EditText edSoLuong = alertLayout.findViewById(R.id.edLimTime);
         final EditText edNote = alertLayout.findViewById(R.id.edNote);
         final EditText edDonvi = alertLayout.findViewById(R.id.edDonvi);
         final CurrencyEditText edDongia = alertLayout.findViewById(R.id.edDongia);

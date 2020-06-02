@@ -92,7 +92,7 @@ public class CurrencyEditText extends AppCompatEditText {
 
         @Override
         public void afterTextChanged(Editable editable) {
-            String str = editable.toString();
+            String str = editable.toString().trim();
             if (str.length() < prefix.length()) {
                 editText.setText(prefix);
                 editText.setSelection(prefix.length());
@@ -122,7 +122,7 @@ public class CurrencyEditText extends AppCompatEditText {
         }
 
         private String formatInteger(String str) {
-            BigDecimal parsed = new BigDecimal(str);
+            BigDecimal parsed = new BigDecimal(str.trim());
             DecimalFormat formatter =
                     new DecimalFormat(prefix + "#,###", new DecimalFormatSymbols(Locale.US));
             return formatter.format(parsed);

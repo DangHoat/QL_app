@@ -10,16 +10,31 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.vn.quanly.R;
 
+import org.json.JSONObject;
+
+import java.util.regex.Pattern;
+
 public class Noitification {
     private String title;
     private String code,time, money;
+    JSONObject data;
     private boolean isCheck;
-    public Noitification(String title,String code,boolean isCheck,String time,String money){
+    private Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
+    public Noitification(JSONObject data,String title,String code,boolean isCheck,String time,String money){
         this.isCheck = isCheck;
+        this.data = data;
         this.title = title;
         this.code = code;
         this.time = time;
         this.money = money;
+    }
+
+    public void setData(JSONObject data) {
+        this.data = data;
+    }
+
+    public JSONObject getData() {
+        return data;
     }
 
     public String getCode() {
@@ -51,10 +66,7 @@ public class Noitification {
     }
 
     public String getMoney() {
-        if(money.equals("null")||money==null){
-            return "Không hạn mức";
-        }
-        return money;
+        return isNumeric(money);
     }
 
     public void setTime(String time) {
@@ -66,5 +78,11 @@ public class Noitification {
             return "Không hạn ngày";
         }
         return time;
+    }
+    public String  isNumeric(String strNum) {
+        if (strNum == null || !pattern.matcher(strNum).matches()||strNum.trim().equals("")) {
+            return "0";
+        }
+        return strNum;
     }
 }

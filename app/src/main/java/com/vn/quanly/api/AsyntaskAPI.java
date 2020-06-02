@@ -48,6 +48,7 @@ public abstract class AsyntaskAPI extends AsyncTask<String,Void,Void> {
         this.URL = URL;
         this.method = "get";
         this.token = token;
+        this.isShowLoading = isShowLoading;
     }
 
     @Override
@@ -59,8 +60,8 @@ public abstract class AsyntaskAPI extends AsyncTask<String,Void,Void> {
             username.put("password",saveDataSHP.getString(SaveDataSHP.SHP_EMAI));
 
         }catch (JSONException e){}
+        progressDialog = new ProgressDialog(context);
         if(isShowLoading) {
-            progressDialog = new ProgressDialog(context);
             progressDialog.setMessage("Vui lòng chờ...");
             progressDialog.show();
         }
@@ -70,6 +71,9 @@ public abstract class AsyntaskAPI extends AsyncTask<String,Void,Void> {
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
+        if(progressDialog.isShowing()){
+            progressDialog.cancel();
+        }
         new SaveDataSHP(context).SaveToken(token);
         if(pleaseReset){
             this.setOnPostExcute(result);
@@ -145,6 +149,9 @@ public abstract class AsyntaskAPI extends AsyncTask<String,Void,Void> {
         return token;
     }
 
+    public void setShowLoading(boolean showLoading) {
+        isShowLoading = showLoading;
+    }
     public abstract void setOnPreExcute();
     public abstract void setOnPostExcute(String JsonResult);
 }

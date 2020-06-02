@@ -231,7 +231,7 @@
                         android:layout_width="50dp"
                         android:layout_height="50dp"
                         android:padding="5dp"
-                        android:src="@drawable/ic_info" />
+                        android:src="@drawable/ic_list_client" />
 
                     <LinearLayout
                         android:gravity="left|center_horizontal"
@@ -250,7 +250,7 @@
                             android:background="@drawable/border_bottom"
                             android:drawableRight="@drawable/ic_next"
                             android:gravity="left|center"
-                            android:text="Giới Thiệu"
+                            android:text="Danh sách khách hàng"
                             android:textAllCaps="false"
                             android:textColor="#000" />
                     </LinearLayout>

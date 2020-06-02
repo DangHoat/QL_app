@@ -104,7 +104,7 @@ public class ExcelExporter {
                     sheetA.addCell(new Label(6, i, (bill.getQuantity())));
                     sheetA.addCell(new Label(7, i, currencyVN.format(Double.parseDouble(bill.getUnit_price()))));
                     sheetA.addCell(new Label(8, i, currencyVN.format(Double.parseDouble(bill.getQuantity()) * Double.parseDouble(bill.getUnit_price()))));
-                    sheetA.addCell(new Label(9, i, bill.getNote()));
+                    sheetA.addCell(new Label(9, i, bill.getNote().equals("null")?"":bill.getNote()));
 
                 }
             WritableFont font = new WritableFont(WritableFont.TIMES, 12,WritableFont.BOLD,true);

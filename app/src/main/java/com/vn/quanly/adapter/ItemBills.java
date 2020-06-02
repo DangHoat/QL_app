@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.vn.quanly.R;
 import com.vn.quanly.model.BillOfSale;
+import com.vn.quanly.ui.CurrencyEditText;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -45,7 +47,7 @@ public class ItemBills extends RecyclerView.Adapter<ItemBills.ViewHolder> {
         if(billOfSale.getUnit_price().equals("")){
             holder.don_gia.setText(currencyVN.format(Long.parseLong("0")));
         }else {
-            holder.don_gia.setText(currencyVN.format(Long.parseLong(billOfSale.getUnit_price())).toString().trim());
+            holder.don_gia.setText(currencyVN.format(Double.parseDouble(billOfSale.getUnit_price())).toString().trim());
         }
         if(billOfSale.getQuantity().equals("")){
             holder.soluong.setText("0");
@@ -63,6 +65,7 @@ public class ItemBills extends RecyclerView.Adapter<ItemBills.ViewHolder> {
         holder.loaihang.setText(billOfSale.getType());
         holder.loaihang.setCompoundDrawables(null, null, null, null);
 
+        holder.check.setVisibility(View.GONE);
         holder.note.setText(billOfSale.getNote());
 
         holder.tvTime.setText(billOfSale.getDate());
@@ -71,13 +74,12 @@ public class ItemBills extends RecyclerView.Adapter<ItemBills.ViewHolder> {
         holder.soluong.setEnabled(false);
         holder.note.setEnabled(false);
 
-        final Double total_amount =Double.parseDouble(billOfSale.getQuantity())*Double.parseDouble(billOfSale.getUnit_price());
-        if(total_amount!=0){
+        final Double total_amount =Double.parseDouble(billOfSale.getTotal_amount());
+        if(total_amount!=0||!total_amount.equals("null")){
             holder.costBill.setText(currencyVN.format(total_amount));
         }else {
             holder.costBill.setText(currencyVN.format(0));
         }
-
     }
     public void removeItem(int position) {
         billOfSaleList.remove(position);
@@ -102,17 +104,19 @@ public class ItemBills extends RecyclerView.Adapter<ItemBills.ViewHolder> {
         TextView tenhang;
         TextView dvTinh;
         TextView loaihang;
-        TextView costBill;
+        CurrencyEditText costBill;
         TextView tvTime;
         EditText soluong;
         EditText don_gia;
         EditText diachi;
+        CheckBox check;
         EditText note;
         Button btnAdd;
         Button btnSub;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             loaihang = itemView.findViewById(R.id.loaihang);
+            check = itemView.findViewById(R.id.check);
             tenhang = itemView.findViewById(R.id.tenhang);
             costBill = itemView.findViewById(R.id.costBill);
             dvTinh = itemView.findViewById(R.id.dvTinh);

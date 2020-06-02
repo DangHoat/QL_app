@@ -48,6 +48,7 @@ public class Database extends SQLiteOpenHelper {
             values.put(ScripDatabase.COLUMN_NOTE_ADDRESS,note.getAddress());
             values.put(ScripDatabase.COLUMN_NOTE_TELEPHONE,note.getTelecom());
             values.put(ScripDatabase.COLUMN_NOTE_CODE,note.getCode());
+            values.put(ScripDatabase.COLUMN_NOTE_TOTAL,note.getTotal());
             final Long check = sqLiteDatabase.insert(ScripDatabase.TABLE_NAME_NOTE,null,values);
             sqLiteDatabase.close();
 
@@ -66,10 +67,12 @@ public class Database extends SQLiteOpenHelper {
         if(cursor.moveToFirst()){
             do {
                 Client client = new Client(
+                        (cursor.getInt(0)),
                         (cursor.getString(1)),
                         (cursor.getString(2)),
                         (cursor.getString(3)),
-                        (cursor.getString(4))
+                        (cursor.getString(4)),
+                        (cursor.getString(5))
                         );
                 clients.add(client);
             }while (cursor.moveToNext());
@@ -78,10 +81,10 @@ public class Database extends SQLiteOpenHelper {
         sqLiteDatabase.close();
         return clients;
     }
-    public void DeleteNote(String id){
+    public void DeleteNote(String CODE){
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(ScripDatabase.TABLE_NAME_NOTE, ScripDatabase.COLUMN_NOTE_CODE+ " = ?",
-                new String[] { String.valueOf(id)});
+                new String[] { String.valueOf(CODE)});
         db.close();
     }
     public void clearAll(){

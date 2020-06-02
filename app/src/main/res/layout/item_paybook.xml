@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="100dp"
+    android:layout_height="40dp"
     android:layout_marginTop="5dp"
     android:background="@drawable/border">
 
@@ -25,7 +25,7 @@
         android:layout_height="match_parent"
 
         android:orientation="vertical"
-        android:weightSum="6"
+        android:weightSum="4"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/imageView2"
         app:layout_constraintTop_toTopOf="parent"
@@ -35,16 +35,17 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="2"
+            android:layout_weight="4"
             android:orientation="horizontal"
-            android:weightSum="10"
+            android:weightSum="20"
             tools:ignore="Suspicious0dp">
 
             <TextView
+                android:id="@+id/code"
                 android:background="@drawable/border"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="3"
+                android:layout_weight="13"
                 android:paddingLeft="5dp"
                 android:gravity="center|left"
                 android:text="Mã Khách"
@@ -55,16 +56,16 @@
             <TextView
                 android:maxLines="1"
                 android:ellipsize="end"
-                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
                 android:background="@drawable/border"
-                android:id="@+id/code"
+                android:id="@+id/timedate"
                 android:layout_width="0dp"
                 android:textColor="#000"
                 android:textSize="15sp"
                 android:textStyle="italic"
                 android:layout_height="match_parent"
                 android:layout_weight="7"
-                android:gravity="center|left"
+                android:gravity="center|right"
                 android:text="DaiAn">
 
             </TextView>
@@ -72,7 +73,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="2"
+            android:layout_weight="0"
             android:orientation="horizontal"
             android:weightSum="10"
             tools:ignore="Suspicious0dp">
@@ -80,7 +81,7 @@
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="3"
+                android:layout_weight="0"
                 android:gravity="center|left"
                 android:paddingLeft="5dp"
                 android:text="Khách Hàng"
@@ -90,6 +91,7 @@
                 android:textStyle="normal"/>
 
             <TextView
+                android:visibility="gone"
                 android:maxLines="1"
                 android:ellipsize="end"
                 android:paddingLeft="5dp"
@@ -97,17 +99,18 @@
                 android:id="@+id/customer"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="7"
+                android:layout_weight="10"
                 android:textColor="#000"
                 android:textSize="15sp"
                 android:textStyle="italic"
-                android:gravity="center|left"
+                android:gravity="center"
                 android:text="Đại An">
 
             </TextView>
         </LinearLayout>
 
         <LinearLayout
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="2"
@@ -131,7 +134,6 @@
                 android:maxLines="1"
                 android:ellipsize="end"
                 android:background="@drawable/border"
-                android:id="@+id/timedate"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="7"
@@ -147,18 +149,14 @@
 
     <ImageButton
         android:id="@+id/btnShow"
-        style="@style/Widget.AppCompat.Button.Small"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
         android:background="#FFF"
+        android:layout_margin="5dp"
         android:src="@drawable/ic_next"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.15"
+        app:layout_constraintHeight_percent="0.20"
         app:layout_constraintStart_toEndOf="@+id/linearLayout"
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="MissingConstraints" />

@@ -7,7 +7,7 @@
     android:background="@drawable/border_bottom"
     android:layout_marginTop="2dp"
     android:layout_width="match_parent"
-    android:layout_height="100dp"
+    android:layout_height="wrap_content"
     tools:ignore="InvalidId">
 
     <de.hdodenhof.circleimageview.CircleImageView
@@ -24,24 +24,24 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/linearLayout4"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="8dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="0dp"
         android:gravity="center"
         android:orientation="vertical"
-        app:layout_constraintHeight_percent="0.55"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/icon_noitification"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_percent="0.85">
+        app:layout_constraintWidth_percent="0.9">
 
         <TextView
             android:id="@+id/tvDiachi"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="Khách hàng Đại An đã đến hạn nợ"
+            android:layout_height="wrap_content"
             android:gravity="center|left"
+            android:text="Khách hàng Đại An đã đến hạn nợ"
             android:textColor="#000"
             android:textSize="15sp"
-            android:textStyle="bold"
+            android:textStyle="normal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHeight_percent="0.75"
@@ -52,6 +52,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView
+        android:visibility="gone"
         android:id="@+id/tvTime"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -77,6 +78,7 @@
         app:srcCompat="@drawable/ic_info" />
 
     <TextView
+        android:visibility="gone"
         android:id="@+id/tvMoney"
         android:drawableLeft="@drawable/ic_money"
         android:layout_width="0dp"

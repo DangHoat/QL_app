@@ -15,13 +15,15 @@ public class ScripDatabase {
     protected static final String COLUMN_NOTE_NAME ="name";
     protected static final String COLUMN_NOTE_ADDRESS = "Adress";
     protected static final String COLUMN_NOTE_TELEPHONE ="telecom";
+    protected static final String COLUMN_NOTE_TOTAL ="total";
     protected static final String script_create = "CREATE TABLE " + TABLE_NAME_NOTE + "("
 
             + "ID"+ " INTEGER PRIMARY KEY,"
             + COLUMN_NOTE_CODE+ " TEXT,"
             + COLUMN_NOTE_NAME + " TEXT,"
             + COLUMN_NOTE_ADDRESS + " TEXT,"
-            + COLUMN_NOTE_TELEPHONE + " TEXT" + ")";
+            + COLUMN_NOTE_TELEPHONE + " TEXT,"
+            + COLUMN_NOTE_TOTAL + " TEXT"+ ")";
 
     public static final String scrips_drop = "DROP TABLE IF EXISTS " + TABLE_NAME_NOTE;
     public static final String scrips_delete_table = "DELETE FROM " + TABLE_NAME_NOTE;

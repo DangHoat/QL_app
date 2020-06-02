@@ -5,11 +5,22 @@ public class Client {
     String name;
     String address;
     String telecom;
-    public Client(String code,String name, String address, String telecom){
+    String total;
+    int id;
+    public Client(String code,String name, String address, String telecom,String total){
         this.code = code;
         this.name = name;
         this.address = address;
         this.telecom = telecom;
+        this.total = total;
+    }
+    public Client(int id,String code,String name, String address, String telecom,String total){
+        this.id = id;
+        this.code = code;
+        this.name = name;
+        this.address = address;
+        this.telecom = telecom;
+        this.total = total;
     }
 
     public void setAddress(String address) {
@@ -42,6 +53,22 @@ public class Client {
 
     public String getTelecom() {
         return telecom;
+    }
+
+    public void setTotal(String total) {
+        this.total = total;
+    }
+
+    public String getTotal() {
+        return total;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }
 

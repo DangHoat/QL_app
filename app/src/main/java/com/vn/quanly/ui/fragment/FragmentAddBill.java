@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.PopupMenu;
@@ -39,7 +40,7 @@ import com.vn.quanly.R;
 import com.vn.quanly.SQLlite.Database;
 import com.vn.quanly.adapter.Interface.clickItemSearch;
 import com.vn.quanly.adapter.ItemBills;
-import com.vn.quanly.adapter.SearchView;
+import com.vn.quanly.adapter.SearchClient;
 import com.vn.quanly.adapter.SwipeToDeleteCallback;
 import com.vn.quanly.api.AsyntaskAPI;
 import com.vn.quanly.model.BillOfSale;
@@ -58,6 +59,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -81,8 +83,7 @@ public class FragmentAddBill extends Fragment {
     private Button btnAddBill;
     private final ArrayList<BillOfSale> billOfSales = new ArrayList<>();
     private ItemBills itemBill;
-    private SearchView searchView;
-    private ScrollView scrollview;
+    private SearchClient searchView;
     private String lastAddress = "";
     private ArrayList<BillOfSale> bills = new ArrayList<>();
     String token;
@@ -98,11 +99,13 @@ public class FragmentAddBill extends Fragment {
     private List<Client> clientList = new ArrayList<>();
     private List<Client> listResult = new ArrayList<>();
 
+
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_add_data,container,false);
+        View view = inflater.inflate(R.layout.fragment_add_bill,container,false);
         context = getContext();
         token =new SaveDataSHP(context).getShpToken();
         database = new Database(getContext());
@@ -114,7 +117,7 @@ public class FragmentAddBill extends Fragment {
         SwipeToDeleteAndUndo();
 
         recyclerViewID.setLayoutManager(new LinearLayoutManager(getContext()));
-        searchView = new SearchView(getContext(),listResult);
+        searchView = new SearchClient(getContext(),listResult);
         recyclerViewID.setAdapter(searchView);
         searchView.setClickItemSearch(new clickItemSearch() {
             @Override
@@ -183,7 +186,7 @@ public class FragmentAddBill extends Fragment {
         recyclerViewID = view.findViewById(R.id.recyclerViewID);
         btnAddBill = view.findViewById(R.id.btnAddBill);
         constraintlayout = view.findViewById(R.id.constraintlayout);
-        scrollview = view.findViewById(R.id.scrollview);
+
     }
     private void KeyboardEvent(){
        KeyboardVisibilityEvent.setEventListener(getActivity(), new KeyboardVisibilityEventListener() {
@@ -193,8 +196,6 @@ public class FragmentAddBill extends Fragment {
                    listResult.clear();
                    searchView.notifyDataSetChanged();
                }
-//               btnAccept.setEnabled(!isOpen);
-//               btnAccept.setVisibility(isOpen?View.GONE:View.VISIBLE);
            }
        });
     }
@@ -205,7 +206,7 @@ public class FragmentAddBill extends Fragment {
             public void onClick(View v) {
                 itemBill.notifyDataSetChanged();
                 Log.e("-----------------","=================");
-                final String codeClient = ( editTextID.getText().toString().trim());
+                final String codeClient = VNCharacterUtils.replaceWhiteSpace(editTextID.getText().toString().trim());
                 String nameClient = editTextName.getText().toString().trim();
                 String addressClient = editAddress.getText().toString().trim();
                 String telecomClient = editTelecom.getText().toString().trim();
@@ -217,12 +218,12 @@ public class FragmentAddBill extends Fragment {
                 try {
                     for(int i = 0;i<billOfSaleLists.size();i++) {
                         JSONObject data = new JSONObject();
-                        final Double total_amount =Double.parseDouble(billOfSaleLists.get(i).getQuantity())*Double.parseDouble(billOfSaleLists.get(i).getUnit_price());
+                        final Double total_amount = Double.parseDouble(billOfSaleLists.get(i).getTotal_amount());
                         data.put("categories", billOfSaleLists.get(i).getCategories().toString().trim());
                         data.put("types", billOfSaleLists.get(i).getType().toString().trim());
                         data.put("unit_price", billOfSaleLists.get(i).getUnit_price().toString().trim());
                         data.put("unit", billOfSaleLists.get(i).getUnit().toString().trim());
-                        data.put("total_amount",Double.toString(total_amount));
+                        data.put("total_amount",billOfSaleLists.get(i).getTotal_amount().toString().trim());
                         data.put("date",billOfSaleLists.get(i).getDate().toString().trim());
                         data.put("quantity",billOfSaleLists.get(i).getQuantity().toString().trim());
                         data.put("note",billOfSaleLists.get(i).getNote().toString().trim());
@@ -273,9 +274,18 @@ public class FragmentAddBill extends Fragment {
                         try {
                            JSONObject rs =  new JSONObject(JsonResult);
                            if(!rs.toString().equals("") && rs.getString("message").equals("Successfully")){
-                               Toast.makeText(getContext(),"Thêm hóa đơn cho mã khách"+codeClient+"thành công",Toast.LENGTH_LONG).show();
-                               billOfSales.clear();
-                               itemBill.notifyDataSetChanged();
+                               Toast.makeText(getContext(),"Thêm hóa đơn cho mã khách "+codeClient+" thành công",Toast.LENGTH_LONG).show();
+                               Clear();
+                               return;
+                           }
+                           if(!rs.toString().equals("") && rs.getString("message").equals("pay_enough")){
+                               Toast.makeText(getContext(),"Thanh toán hóa đơn cho mã khách "+codeClient+" thành công",Toast.LENGTH_LONG).show();
+                               Clear();
+                               return;
+                           }
+                            if(!rs.toString().equals("") && rs.getString("message").equals("Server Error")){
+                               Toast.makeText(getContext(),"Vui lòng kiểm tra lại",Toast.LENGTH_LONG).show();
+                               return;
                            }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -297,15 +307,8 @@ public class FragmentAddBill extends Fragment {
                                 if(ToolsCheck.checkInternetConnection(getContext())){
                                     createBill.execute();
                                 }
-                                totalCost.setText(currencyVN.format(0));
                             }
                         })
-//                        .setNeutralButton("Normal", new DialogInterface.OnClickListener() {
-//                            @Override
-//                            public void onClick(DialogInterface dialogInterface, int i) {
-//
-//                            }
-//                        })
                         .create();
                 dialog.show();
             }
@@ -313,6 +316,16 @@ public class FragmentAddBill extends Fragment {
         });
 }
 
+    void Clear(){
+        billOfSales.clear();
+        itemBill.notifyDataSetChanged();
+        editTextID.setText("");
+        editAddress.setText("");
+        editTelecom.setText("");
+        editTextName.setText("");
+        totalCost.setText(currencyVN.format(0));
+        lastAddress = "";
+    }
 
     private void RecycleViewControl(){
         itemBill = new ItemBills(getContext(), billOfSales);
@@ -325,13 +338,14 @@ public class FragmentAddBill extends Fragment {
                 LayoutInflater inflater = getLayoutInflater();
                 View alertLayout = inflater.inflate(R.layout.item_bil_of_sale, null);
                 final TextView tenhang = (TextView)alertLayout.findViewById(R.id.tenhang);
+                final CheckBox check = (CheckBox) alertLayout.findViewById(R.id.check);
                 final TextView dvTinh  = (TextView)alertLayout.findViewById(R.id.dvTinh);
                 final TextView loaihang  = (TextView)alertLayout.findViewById(R.id.loaihang);
                 final EditText soluong  = (EditText)alertLayout.findViewById(R.id.soluong);
                 final CurrencyEditText don_gia  = (CurrencyEditText)alertLayout.findViewById(R.id.dongia);
                 final EditText note  = (EditText)alertLayout.findViewById(R.id.note);
                 final TextView tvTime  = (TextView) alertLayout.findViewById(R.id.tvTime);
-                final TextView costBill  = (TextView) alertLayout.findViewById(R.id.costBill);
+                final CurrencyEditText costBill  = (CurrencyEditText) alertLayout.findViewById(R.id.costBill);
                 final TextView diachi  = (TextView) alertLayout.findViewById(R.id.diachi);
                 if(!lastAddress.equals("")){
                     diachi.setText(lastAddress.trim());
@@ -411,11 +425,18 @@ public class FragmentAddBill extends Fragment {
                         String tvTenhang = tenhang.getText().toString().trim();
                         String tvLoaihang = loaihang.getText().toString().trim();
                         String tvDvTinh = dvTinh.getText().toString().trim().equals("")?"cái":dvTinh.getText().toString().trim();
-                        String tvSoluong = soluong.getText().toString().trim();
+                        String tvSoluong = soluong.getText().toString().trim().equals("")?"0":soluong.getText().toString().trim();
                         String tvDongia = don_gia.getText().toString().trim().replace(",","");
+                        String total = costBill.getText().toString().trim().equals("")?"0":costBill.getText().toString().trim().replace(",","");
                         String tvNote = note.getText().toString().trim();
                         String tvThoigian = tvTime.getText().toString().trim();
                         String tvDiachi = diachi.getText().toString().trim();
+                        if(check.isChecked()){
+//                            Log.e("total",total);
+//                            Double temp = -Double.parseDouble(total);
+//                            total = Double.toString(temp);
+                            total = '-'+total;
+                        }
                         if(!tvDiachi.equals("")){
                             lastAddress = tvDiachi;
                         }
@@ -424,7 +445,7 @@ public class FragmentAddBill extends Fragment {
                             tvThoigian = currentDate;
                         }
                         if(!tvTenhang.equals("")){
-                            BillOfSale a = new BillOfSale(tvThoigian,tvTenhang,tvLoaihang,tvDvTinh,tvDongia,tvSoluong,tvNote,tvDiachi);
+                            BillOfSale a = new BillOfSale(tvThoigian,tvDiachi,tvTenhang,tvLoaihang,tvDvTinh,tvDongia,tvSoluong,total,tvNote);
                             billOfSales.add(a);
                             itemBill.notifyDataSetChanged();
                             setPay();
@@ -510,7 +531,7 @@ public class FragmentAddBill extends Fragment {
         try {
             for(int i = 0;i<billOfSaleLists.size();i++) {
                 JSONObject data = new JSONObject();
-                final Double total_amount =Double.parseDouble(billOfSaleLists.get(i).getQuantity())*Double.parseDouble(billOfSaleLists.get(i).getUnit_price());
+                final Double total_amount =Double.parseDouble(billOfSaleLists.get(i).getTotal_amount());
                 cost = cost+total_amount;
                 totalCost.setText(currencyVN.format((cost)));
             }
@@ -518,7 +539,7 @@ public class FragmentAddBill extends Fragment {
             Log.e("JSONException",e.toString());
         }
     }
-    private  TextWatcher billPay(final EditText soluong,final EditText don_gia,final TextView costBill){
+    private  TextWatcher billPay(final EditText soluong,final CurrencyEditText don_gia,final TextView costBill){
         return new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -528,14 +549,18 @@ public class FragmentAddBill extends Fragment {
             }
             @Override
             public void afterTextChanged(Editable s) {
+                DecimalFormatSymbols decimalFormatSymbols = ((DecimalFormat) currencyVN).getDecimalFormatSymbols();
+                decimalFormatSymbols.setCurrencySymbol("");
+                ((DecimalFormat) currencyVN).setDecimalFormatSymbols(decimalFormatSymbols);
                 if(!s.equals("")){
                     String sl = soluong.getText().toString().trim();
                     String dg = don_gia.getText().toString().trim().replace(",","");
                     if(sl.equals("") || dg.equals("")){
-                        costBill.setText(currencyVN.format(0));
+                        costBill.setText("0");
                     }else {
-                        final Double total =Double.parseDouble(sl)*Double.parseDouble(dg);
-                        costBill.setText(currencyVN.format((total)));
+                        final Long total =Long.parseLong(sl)*Long.parseLong(dg);
+                        String totalcost  = currencyVN.format(total).replace(".",",").replaceAll(" ", "");
+                        costBill.setText(totalcost);
                     }
                 }
             }

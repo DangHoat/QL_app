@@ -3,7 +3,7 @@
     <item
         android:id="@+id/delete"
         android:title="Xác nhận thanh toán"/>
-<!--    <item-->
-<!--        android:id="@+id/watch"-->
-<!--        android:title="Đã xem"/>-->
+    <item
+        android:id="@+id/hanno"
+        android:title="Đặt hạn nợ"/>
 </menu>
